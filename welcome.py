@@ -16,4 +16,4 @@ def get_welcome_message():
     return welcome_message
 
 if __name__ == "__main__":
-    print(get_welcome_message()) +
+    print(get_welcome_message())
