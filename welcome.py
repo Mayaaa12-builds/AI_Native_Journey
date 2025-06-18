@@ -1,6 +1,7 @@
 def get_welcome_message():
     """
     Prompts the user for their name and generates a personalized welcome message.
+    Provides a special greeting for Sumaya, the AI Director.
 
     Returns:
         str: A multi-line string containing the welcome message with the user's name.
@@ -11,11 +12,25 @@ def get_welcome_message():
     # stored in the 'name' variable.
     name = input("What's your name? ")
 
-    # Create a personalized welcome message using an f-string (formatted string literal).
-    # An f-string allows you to embed expressions (like variables) directly
-    # inside string literals by placing them inside curly braces {}.
-    # The triple quotes """ allow for a multi-line string.
-    welcome_message = f"""
+    # Check if the user is Sumaya and provide a special greeting
+    if name.lower() == "sumaya":
+        welcome_message = f"""
+╔══════════════════════════════════════╗
+║                                      ║
+║     Welcome to the Hello World App!  ║
+║                                      ║
+║     Hey, it's the awesome AI         ║
+║     Director, {name}!                ║
+║     We're honored to have you here!  ║
+║                                      ║
+╚══════════════════════════════════════╝
+        """
+    else:
+        # Create a personalized welcome message using an f-string (formatted string literal).
+        # An f-string allows you to embed expressions (like variables) directly
+        # inside string literals by placing them inside curly braces {}.
+        # The triple quotes """ allow for a multi-line string.
+        welcome_message = f"""
 ╔══════════════════════════════════════╗
 ║                                      ║
 ║     Welcome to the Hello World App!  ║
@@ -24,7 +39,7 @@ def get_welcome_message():
 ║     We're glad to have you here!     ║
 ║                                      ║
 ╚══════════════════════════════════════╝
-    """
+        """
     # Return the complete personalized welcome message.
     return welcome_message
 
