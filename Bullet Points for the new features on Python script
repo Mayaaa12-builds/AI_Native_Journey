@@ -1,0 +1,21 @@
+New Features & Benefits
+Smart Greetings:
+
+Feature: Greets you with "Good morning," "Good afternoon," or "Good evening" based on the current time.
+Benefit: Makes the app feel more personal and aware of the time of day.
+Friendly Emojis:
+
+Feature: Adds a fun emoji (like 😊, ☀️, or 🌙) that matches the time of day.
+Benefit: Makes the greeting more visually appealing and adds a touch of personality.
+VIP Treatment for Sumaya:
+
+Feature: Displays a unique, special message if you enter "Sumaya."
+Benefit: Allows the app to recognize and give a special shout-out to specific important users.
+Special Greeting Feature & Benefit
+Custom VIP Welcome:
+Feature: If the user ens "Sumaya" (regardless of capitalization), they get a unique and more elaborate welcome message.
+Benefit: This creates a highly personalized experience, making a specific user feel recognized and valued, adding a special touch beyond a standard greeting.
+Standard Greeting Template:
+
+Feature: Provides a consistent, framed welcome message ("Welcome to the Hello World App!" and "We're glad to have you here!") for all users, with a placeholder for the user's name.
+Benefit: Ensures every user receives a clear, friendly, and branded greeting, maintaining consistency across non-special interactions.
