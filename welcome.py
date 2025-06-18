@@ -1,46 +1,35 @@
+import datetime
+
 def get_welcome_message():
     """
     Prompts the user for their name and generates a personalized welcome message.
-    Provides a special greeting for Sumaya, the AI Director.
-
-    Returns:
-        str: A multi-line string containing the welcome message with the user's name.
+    Provides a time-based greeting with a smiley emoji.
+    Special greeting for Sumaya.
     """
-    # Ask for the user's name using the input() function.
-    # The input() function displays the prompt and waits for the user
-    # to type something and press Enter. The entered text is then
-    # stored in the 'name' variable.
-    name = input("What's your name? ")
+    name = input("What's your name? ").strip()
 
-    # Check if the user is Sumaya and provide a special greeting
-    if name.lower() == "sumaya":
-        welcome_message = f"""
-╔══════════════════════════════════════╗
-║                                      ║
-║     Welcome to the Hello World App!  ║
-║                                      ║
-║     Hey, it's the awesome AI         ║
-║     Director, {name}!                ║
-║     We're honored to have you here!  ║
-║                                      ║
-╚══════════════════════════════════════╝
-        """
+    current_time = datetime.datetime.now()
+    hour = current_time.hour
+
+    if 5 <= hour < 12:
+        time_greeting = "Good morning"
+        emoji = "😊"
+    elif 12 <= hour < 18:
+        time_greeting = "Good afternoon"
+        emoji = "☀️"
     else:
-        # Create a personalized welcome message using an f-string (formatted string literal).
-        # An f-string allows you to embed expressions (like variables) directly
-        # inside string literals by placing them inside curly braces {}.
-        # The triple quotes """ allow for a multi-line string.
-        welcome_message = f"""
-╔══════════════════════════════════════╗
-║                                      ║
-║     Welcome to the Hello World App!  ║
-║                                      ║
-║     Hello, {name}!                   ║
-║     We're glad to have you here!     ║
-║                                      ║
-╚══════════════════════════════════════╝
-        """
-    # Return the complete personalized welcome message.
+        time_greeting = "Good evening"
+        emoji = "🌙"
+
+    if name.lower() == "sumaya":
+        welcome_message = (
+            f"{time_greeting}, {name}! {emoji}\n"
+            "Hey, it's the awesome AI Director, Sumaya!\n"
+            "We're honored to have you here!"
+        )
+    else:
+        welcome_message = f"{time_greeting}, {name}! {emoji}\nWe're glad to have you here!"
+
     return welcome_message
 
 # This is a common Python idiom.

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Based Welcome Greeting App</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        input[type="text"] {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .greeting-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem 1rem;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.15rem;
+            color: #2c3e50;
+            display: none;
+            box-shadow: 0 4px 12px rgba(44,62,80,0.07);
+        }
+        .special-greeting {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Time-Based Welcome Greeting App</h1>
+        <div class="input-group">
+            <input type="text" id="nameInput" placeholder="What's your name?" onkeypress="handleKeyPress(event)">
+            <button onclick="showGreeting()">Get Greeting</button>
+        </div>
+        <div id="greetingBox" class="greeting-box"></div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                showGreeting();
+            }
+        }
+
+        function showGreeting() {
+            const name = document.getElementById('nameInput').value.trim();
+            const greetingBox = document.getElementById('greetingBox');
+
+            if (!name) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            // Get current hour
+            const now = new Date();
+            const hour = now.getHours();
+            let timeGreeting, emoji;
+
+            if (hour >= 5 && hour < 12) {
+                timeGreeting = "Good morning";
+                emoji = "😊";
+            } else if (hour >= 12 && hour < 18) {
+                timeGreeting = "Good afternoon";
+                emoji = "☀️";
+            } else {
+                timeGreeting = "Good evening";
+                emoji = "🌙";
+            }
+
+            let greetingHTML;
+            let isSpecial = false;
+
+            if (name.toLowerCase() === 'sumaya') {
+                greetingHTML = `
+                    <div>${timeGreeting}, <span style='color:#d35400;'>${name}</span>! ${emoji}</div>
+                    <div>Hey, it's the awesome AI Director, <span style='color:#d35400;'>${name}</span>!</div>
+                    <div>We're honored to have you here!</div>
+                `;
+                isSpecial = true;
+            } else {
+                greetingHTML = `
+                    <div>${timeGreeting}, <span style='color:#2980b9;'>${name}</span>! ${emoji}</div>
+                    <div>We're glad to have you here!</div>
+                `;
+            }
+
+            greetingBox.innerHTML = greetingHTML;
+            greetingBox.style.display = 'block';
+
+            if (isSpecial) {
+                greetingBox.classList.add('special-greeting');
+            } else {
+                greetingBox.classList.remove('special-greeting');
+            }
+        }
+    </script>
+</body>
+</html> 
