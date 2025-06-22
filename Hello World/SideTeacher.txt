@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome App & Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Fallback background color */
+            /* Updated background to a catchy image of professionals */
+            background-image: url('https://images.unsplash.com/photo-1683884327572-c5188f8d57d5?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); /* Professionals at a table with laptops */
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center center; /* Center the background image */
+            background-repeat: no-repeat; /* Do not repeat the image */
+            background-attachment: fixed; /* Keep background fixed while scrolling (if content overflows) */
+            /* Apply an overlay to ensure text readability on top of the image */
+            position: relative; /* Needed for the ::before pseudo-element */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem; /* Add some padding for smaller screens */
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+        body::before { /* Pseudo-element for a semi-transparent overlay */
+            content: '';
+            position: fixed; /* Fixed to viewport like the video/image */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark overlay for better text contrast */
+            z-index: -1; /* Between background and content containers */
+        }
+        .section-container {
+            background-color: #ffffff;
+            padding: 2.5rem; /* Increased padding */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Stronger shadow */
+            text-align: center;
+            /* Adjusted max-width for a smaller, more centralized area */
+            max-width: 550px; /* Reduced from 700px */
+            width: 100%; /* Responsive width */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Space between elements */
+            box-sizing: border-box;
+            z-index: 1; /* Ensure containers are above the overlay */
+            position: relative; /* Ensure z-index works */
+        }
+        /* Styles specific to input and buttons */
+        input[type="text"] {
+            border: 2px solid #cbd5e0; /* Light gray border */
+            border-radius: 0.75rem; /* Rounded input */
+            padding: 1rem 1.25rem; /* Ample padding */
+            font-size: 1.125rem; /* Larger font */
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo focus border */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Soft focus ring */
+        }
+        button {
+            background-color: #6366f1; /* Indigo button */
+            color: white;
+            padding: 1rem 2rem; /* Ample padding */
+            border: none;
+            border-radius: 0.75rem; /* Rounded button */
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out, transform 0.1s ease-in-out;
+            font-weight: 700; /* Bold text */
+            box-shadow: 0 5px 15px -3px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); /* Stronger shadow */
+            width: fit-content; /* Adjust width to content */
+            align-self: center; /* Center the button */
+        }
+        button:hover {
+            background-color: #4f46e5; /* Darker indigo on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+        button:active {
+            transform: translateY(0); /* Press effect */
+        }
+        #welcomeMessage {
+            font-size: 1.25rem; /* Larger message font */
+            color: #334155; /* Darker text */
+            min-height: 1.5em; /* Reserve space */
+        }
+
+        /* Styles for instructions and variables sections */
+        #instructionsSection, #variablesSection, #welcomeVariableSection, #timeGreetingSection {
+            text-align: left; /* Align text left for readability in instructions */
+        }
+        #instructionsSection h2, #variablesSection h2, #welcomeVariableSection h2, #timeGreetingSection h2 {
+            font-size: 2.25rem; /* h2 size */
+            font-weight: bold;
+            color: #1f2937; /* Dark gray */
+            margin-bottom: 1rem;
+            text-align: center; /* Center section headings */
+        }
+        #instructionsSection h3, #variablesSection h3, #welcomeVariableSection h3, #timeGreetingSection h3 {
+            font-size: 1.75rem; /* h3 size */
+            font-weight: bold;
+            color: #374151; /* Slightly lighter gray */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        #instructionsSection p, #instructionsSection ul,
+        #variablesSection p, #variablesSection ul,
+        #welcomeVariableSection p, #timeGreetingSection p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #4b5563; /* Medium gray */
+            margin-bottom: 1rem;
+        }
+        #instructionsSection ul, #variablesSection ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+        }
+        #instructionsSection code, #variablesSection code, #welcomeVariableSection code, #timeGreetingSection code {
+            background-color: #e2e8f0; /* Light gray for code blocks */
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            color: #36404a; /* Darker text for code */
+            display: inline-block; /* Allow wrapping */
+            word-wrap: break-word; /* Ensure code wraps */
+        }
+        #instructionsSection pre, #variablesSection pre, #welcomeVariableSection pre, #timeGreetingSection pre {
+            background-color: #1a202c; /* Dark background for code blocks */
+            color: #e2e8f0; /* Light text for code */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto; /* Allow horizontal scrolling for long lines */
+            margin-bottom: 1rem;
+            text-align: left; /* Ensure code in pre blocks is left-aligned */
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem; /* Space between buttons */
+            margin-top: 2rem;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+        }
+        .hidden {
+            display: none;
+        }
+        /* --- Styles for the enhanced Time-Based Greeting Section --- */
+        #timeGreetingSection {
+             text-align: center; /* Center content in this specific section */
+        }
+        #currentTimeDisplay {
+            font-size: 1.5rem; /* Larger font for time */
+            color: #2563eb; /* A more prominent blue */
+            background-color: #e0f2fe; /* Very light blue background */
+            padding: 0.75rem 1.5rem; /* Ample padding */
+            border-radius: 0.75rem; /* Rounded corners */
+            margin-top: 1rem; /* Space from input */
+            margin-bottom: 1.5rem; /* Space to button */
+            display: inline-block; /* To apply padding and background properly */
+            min-width: 200px; /* Ensure some width even when empty */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow */
+        }
+        #timeGreetingMessage {
+            font-size: 2.25rem; /* Even larger font for the main message */
+            font-weight: bold;
+            color: #1a202c; /* Darker, almost black text for contrast */
+            min-height: 2.5em; /* Ensure enough space for the message */
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Smooth transition for animation */
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(20px); /* Start slightly below for slide-up effect */
+            text-align: center; /* Ensure message is centered */
+        }
+        #timeGreetingMessage.visible {
+            opacity: 1; /* Fade in */
+            transform: translateY(0); /* Slide up to original position */
+        }
+        /* --- End of Time-Based Greeting Section Styles --- */
+    </style>
+</head>
+<body>
+    <!-- Background Image Element (instead of video) -->
+    <!-- This image is from Unsplash and depicts people working on laptops -->
+    <!-- Source: https://unsplash.com/photos/a-group-of-people-sitting-at-a-table-with-laptops-TdMuKUzW9xg -->
+    <div id="background-image"></div>
+
+
+    <div id="welcomeSection" class="section-container">
+        <h1 class="text-3xl font-bold text-gray-800">Welcome Wizard!</h1>
+        <p class="text-gray-600">Enter your name below to get a personalized greeting.</p>
+
+        <input type="text" id="nameInput" placeholder="What's your name?">
+        <button id="greetButton">Say Hello!</button>
+
+        <div id="welcomeMessage" class="mt-4 text-indigo-700 font-semibold"></div>
+
+        <button id="nextButtonWelcome" class="mt-8">Next: Installation Guide</button>
+    </div>
+
+    <div id="instructionsSection" class="section-container hidden">
+        <h2 class="text-3xl font-bold text-gray-800">Installation Guide</h2>
+
+        <h3>2.1 Install Git</h3>
+        <p>1. <strong>Download Git:</strong> Go to the official Git website: <a href="https://git-scm.com/downloads" target="_blank" class="text-indigo-600 hover:underline">https://git-scm.com/downloads</a></p>
+        <p>2. <strong>Select your Operating System:</strong> Click on the link for Windows, macOS, or Linux. The download should start automatically.</p>
+        <p>3. <strong>Run the Installer:</strong></p>
+        <ul>
+            <li><strong>Windows:</strong> Double-click the downloaded <code>.exe</code> file. Follow the prompts. For most steps, you can just click "Next" and accept the default options.</li>
+            <li><strong>macOS:</strong> Double-click the downloaded <code>.pkg</code> file and follow the instructions.</li>
+            <li><strong>Linux:</strong> Open your terminal and use your distribution's package manager (e.g., <code>sudo apt install git</code> for Debian/Ubuntu, <code>sudo yum install git</code> for Fedora/RHEL).</li>
+        </ul>
+        <p>4. <strong>Verify Installation:</strong> Open your computer's "Terminal" (macOS/Linux) or "Command Prompt" / "PowerShell" (Windows). Type the following command and press Enter:</p>
+        <pre><code>git --version</code></pre>
+        <p>You should see a version number (e.g., <code>git version 2.40.1</code>). If you do, Git is installed correctly!</p>
+
+        <h3>2.2 Install GitHub Desktop</h3>
+        <p>1. <strong>Download GitHub Desktop:</strong> Go to the official GitHub Desktop website: <a href="https://desktop.github.com/" target="_blank" class="text-indigo-600 hover:underline">https://desktop.github.com/</a></p>
+        <p>2. <strong>Download and Run:</strong> Click the "Download for Windows" or "Download for macOS" button. Once downloaded, run the installer.</p>
+        <p>3. <strong>Follow Prompts:</strong> The installer is usually very straightforward. After installation, GitHub Desktop will open.</p>
+        <p>4. <strong>Sign In or Create Account:</strong> GitHub Desktop will prompt you to sign in to your GitHub account or create a new one. Follow the steps to sign in or create a new account.</p>
+
+        <h3>2.3 Install Cursor</h3>
+        <p>1. <strong>Download Cursor:</strong> Go to the official Cursor website: <a href="https://cursor.sh/" target="_blank" class="text-indigo-600 hover:underline">https://cursor.sh/</a></p>
+        <p>2. <strong>Download and Run:</strong> Click the "Download" button for your operating system. Once downloaded, run the installer.</p>
+        <p>3. <strong>Open Cursor:</strong> After installation, Cursor should open automatically. Explore its interface, especially the chat window which is your AI assistant.</p>
+
+        <div class="button-group">
+            <button id="backButtonInstructions">Back to Welcome App</button>
+            <button id="nextButtonInstructions">Next: Python Variables</button>
+        </div>
+    </div>
+
+    <div id="variablesSection" class="section-container hidden">
+        <h2 class="text-3xl font-bold text-gray-800">Understanding Variables in Python</h2>
+
+        <h3>What are Variables?</h3>
+        <p>Imagine a variable as a labeled box 📦 where you can store different types of information. In programming, these "boxes" allow you to hold data (like numbers, text, or true/false values) and refer to that data later using the label you gave the box.</p>
+        <p>For example, if you want to store someone's name, you can create a variable named <code>user_name</code> and put "Alice" inside it. Later, if you want to greet Alice, you just use <code>user_name</code> instead of typing "Alice" every time. This makes your code:</p>
+        <ul>
+            <li><strong>Readable:</strong> It's clear what data you're working with.</li>
+            <li><strong>Reusable:</strong> You can change the value in the box without changing every place you used the box's label.</li>
+            <li><strong>Flexible:</strong> Data can change as your program runs.</li>
+        </ul>
+
+        <h3>How to Create a Variable in Python</h3>
+        <p>Creating a variable in Python is very straightforward. You simply give it a name and assign a value to it using the equals sign (<code>=</code>). Python automatically figures out the type of data you're storing.</p>
+
+        <p>Here's a simple Python code example:</p>
+        <pre><code># This is a comment - Python ignores lines starting with #
+
+# Create a variable named 'my_name' and store a text value (string) in it
+my_name = "Charlie"
+
+# Create a variable named 'my_age' and store a number (integer) in it
+my_age = 30
+
+# Create a variable named 'is_student' and store a true/false value (boolean) in it
+is_student = True
+
+# Now, let's use these variables!
+# The 'print()' function displays text or variable content in the console
+print("Hello, my name is", my_name)
+print("I am", my_age, "years old.")
+
+# You can also combine text and variables
+if is_student: # This checks if 'is_student' is True
+    print(my_name, "is currently a student.")
+else:
+    print(my_name, "is not currently a student.")
+
+# You can change a variable's value
+my_age = 31 # Now my_age holds 31 instead of 30
+print("Next year, I will be", my_age, "years old.")
+</code></pre>
+        <p>When you run this Python code (e.g., by saving it as a <code>.py</code> file and executing it in your terminal with <code>python your_file_name.py</code>), you would see output similar to this:</p>
+        <pre><code>Hello, my name is Charlie
+I am 30 years old.
+Charlie is currently a student.
+Next year, I will be 31 years old.
+</code></pre>
+        <p>This shows how variables store different types of data and how you can use them throughout your program to make it dynamic and easy to manage.</p>
+
+        <div class="button-group">
+            <button id="backButtonVariables">Back to Installation Guide</button>
+            <button id="nextButtonVariables">Next: Your Variable Message</button>
+        </div>
+    </div>
+
+    <div id="welcomeVariableSection" class="section-container hidden">
+        <h2 class="text-3xl font-bold text-gray-800">Your Personalized Message with Variables!</h2>
+        <p class="text-gray-600">Let's see variables in action! Type your name below and watch how it's used to create a custom greeting.</p>
+
+        <input type="text" id="variableNameInput" placeholder="Enter your name here">
+        <button id="showVariableMessageButton">Show My Welcome Message</button>
+
+        <p id="personalizedVariableMessage" class="mt-4 text-indigo-700 font-semibold text-xl"></p>
+
+        <div class="button-group">
+            <button id="backButtonWelcomeVariable">Back to Python Variables</button>
+            <button id="nextButtonWelcomeVariable">Next: Time-Based Greeting</button>
+        </div>
+    </div>
+
+    <div id="timeGreetingSection" class="section-container hidden">
+        <h2 class="text-3xl font-bold text-gray-800">Time-Based Greetings!</h2>
+        <p class="text-gray-600">Enter your name and click the button to see a greeting that changes based on the current time of day!</p>
+
+        <input type="text" id="timeGreetingNameInput" placeholder="What's your name?">
+        <p id="currentTimeDisplay"></p>
+        <button id="showTimeGreetingButton">Get My Time Greeting</button>
+        <p id="timeGreetingMessage"></p>
+
+        <div class="button-group">
+            <button id="backButtonTimeGreeting">Back to Personalized Message</button>
+        </div>
+    </div>
+
+
+    <script>
+        // Get references to all sections and buttons
+        const welcomeSection = document.getElementById('welcomeSection');
+        const instructionsSection = document.getElementById('instructionsSection');
+        const variablesSection = document.getElementById('variablesSection');
+        const welcomeVariableSection = document.getElementById('welcomeVariableSection');
+        const timeGreetingSection = document.getElementById('timeGreetingSection');
+
+        const greetButton = document.getElementById('greetButton');
+        const nameInput = document.getElementById('nameInput');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+
+        const nextButtonWelcome = document.getElementById('nextButtonWelcome');
+        const backButtonInstructions = document.getElementById('backButtonInstructions');
+        const nextButtonInstructions = document.getElementById('nextButtonInstructions');
+        const backButtonVariables = document.getElementById('backButtonVariables');
+        const nextButtonVariables = document.getElementById('nextButtonVariables');
+
+        const variableNameInput = document.getElementById('variableNameInput');
+        const showVariableMessageButton = document.getElementById('showVariableMessageButton');
+        const personalizedVariableMessage = document.getElementById('personalizedVariableMessage');
+        const backButtonWelcomeVariable = document.getElementById('backButtonWelcomeVariable');
+        const nextButtonWelcomeVariable = document.getElementById('nextButtonWelcomeVariable');
+
+        // Elements for the time greeting section
+        const timeGreetingNameInput = document.getElementById('timeGreetingNameInput');
+        const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+        const showTimeGreetingButton = document.getElementById('showTimeGreetingButton');
+        const timeGreetingMessage = document.getElementById('timeGreetingMessage');
+        const backButtonTimeGreeting = document.getElementById('backButtonTimeGreeting');
+
+
+        // Function to hide all sections
+        function hideAllSections() {
+            welcomeSection.classList.add('hidden');
+            instructionsSection.classList.add('hidden');
+            variablesSection.classList.add('hidden');
+            welcomeVariableSection.classList.add('hidden');
+            timeGreetingSection.classList.add('hidden');
+        }
+
+        // Event listener for the "Say Hello!" button on the first page
+        greetButton.addEventListener('click', () => {
+            const name = nameInput.value;
+            if (name.trim() === '') {
+                welcomeMessage.textContent = "Please enter your name!";
+                return;
+            }
+
+            const currentHour = new Date().getHours();
+            let timeGreeting = "";
+
+            if (currentHour >= 5 && currentHour < 12) {
+                timeGreeting = "Good morning";
+            } else if (currentHour >= 12 && currentHour < 18) {
+                timeGreeting = "Good afternoon";
+            } else {
+                timeGreeting = "Good evening";
+            }
+
+            const message = `${timeGreeting}, ${name}! Welcome to your standalone web app!`;
+            welcomeMessage.textContent = message;
+        });
+
+        // Event listener for the "Next: Installation Guide" button
+        nextButtonWelcome.addEventListener('click', () => {
+            hideAllSections();
+            instructionsSection.classList.remove('hidden'); // Show instructions
+        });
+
+        // Event listener for "Back to Welcome App" button on instructions page
+        backButtonInstructions.addEventListener('click', () => {
+            hideAllSections();
+            welcomeSection.classList.remove('hidden'); // Show welcome
+        });
+
+        // Event listener for "Next: Python Variables" button on instructions page
+        nextButtonInstructions.addEventListener('click', () => {
+            hideAllSections();
+            variablesSection.classList.remove('hidden'); // Show variables
+        });
+
+        // Event listener for "Next: Your Variable Message" button on variables page
+        nextButtonVariables.addEventListener('click', () => {
+            hideAllSections();
+            welcomeVariableSection.classList.remove('hidden'); // Show the new variable message section
+            variableNameInput.value = ''; // Clear previous input
+            personalizedVariableMessage.textContent = ''; // Clear previous message
+        });
+
+        // Event listener for "Back to Installation Guide" button on variables page
+        backButtonVariables.addEventListener('click', () => {
+            hideAllSections();
+            instructionsSection.classList.remove('hidden'); // Show instructions
+        });
+
+        // Event listener for "Show My Welcome Message" button on the new variable message page
+        showVariableMessageButton.addEventListener('click', () => {
+            const userName = variableNameInput.value;
+            if (userName.trim() === '') {
+                personalizedVariableMessage.textContent = "Please enter your name to see the message!";
+                return;
+            }
+            const finalMessage = `Welcome to the program, ${userName}! 😊`;
+            personalizedVariableMessage.textContent = finalMessage;
+        });
+
+        // Event listener for "Next: Time-Based Greeting" button on welcome variable page
+        nextButtonWelcomeVariable.addEventListener('click', () => {
+            hideAllSections();
+            timeGreetingSection.classList.remove('hidden'); // Show the new time greeting section
+            // Clear previous displays when navigating to this section
+            timeGreetingNameInput.value = ''; // Clear name input
+            currentTimeDisplay.textContent = '';
+            timeGreetingMessage.textContent = '';
+            timeGreetingMessage.classList.remove('visible'); // Ensure it's hidden for re-animation
+        });
+
+        // Event listener for "Back to Python Variables" button on the new variable message page
+        backButtonWelcomeVariable.addEventListener('click', () => {
+            hideAllSections();
+            variablesSection.classList.remove('hidden'); // Show variables section
+        });
+
+        // Event listener for "Get My Time Greeting" button on the new time greeting page
+        showTimeGreetingButton.addEventListener('click', () => {
+            const userNameForTime = timeGreetingNameInput.value;
+            if (userNameForTime.trim() === '') {
+                timeGreetingMessage.textContent = "Please enter your name!";
+                currentTimeDisplay.textContent = "";
+                timeGreetingMessage.classList.remove('visible'); // Hide message if input is empty
+                return;
+            }
+
+            const now = new Date();
+            const currentHour = now.getHours();
+            const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            let greeting = "";
+            let emoji = "";
+
+            if (currentHour >= 5 && currentHour < 12) {
+                greeting = "Good morning";
+                emoji = "☀️";
+            } else if (currentHour >= 12 && currentHour < 18) {
+                greeting = "Good afternoon";
+                emoji = "👋";
+            } else {
+                greeting = "Good evening";
+                emoji = "🌙";
+            }
+
+            currentTimeDisplay.textContent = `Current time: ${formattedTime}`;
+            timeGreetingMessage.textContent = `${greeting}, ${userNameForTime}! ${emoji}`;
+
+            // Trigger animation by adding 'visible' class
+            // Reset state first to allow re-animation if button is clicked again quickly
+            timeGreetingMessage.classList.remove('visible');
+            // This line forces a reflow, allowing the animation to restart
+            void timeGreetingMessage.offsetWidth;
+            timeGreetingMessage.classList.add('visible');
+        });
+
+        // Event listener for "Back to Personalized Message" button on the new time greeting page
+        backButtonTimeGreeting.addEventListener('click', () => {
+            hideAllSections();
+            welcomeVariableSection.classList.remove('hidden'); // Show welcome variable section
+        });
+    </script>
+</body>
+</html>

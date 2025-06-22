@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Art Generator - Simulated Run Preview</title>
+    <style>
+        body {
+            font-family: monospace, sans-serif;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            margin: 20px;
+            line-height: 1.4;
+        }
+        pre {
+            background-color: #000000;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Breaks long words */
+        }
+        .comment {
+            color: #888;
+        }
+        .user-input {
+            color: #FFD700; /* Gold */
+            font-weight: bold;
+        }
+        .error {
+            color: #FF6347; /* Tomato */
+            font-weight: bold;
+        }
+        h2, h3 {
+            color: #ADD8E6; /* Light Blue */
+        }
+        p {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>AI Art Generator - Simulated Run Preview</h1>
+    <p>This is a simulated preview of what you would see in your terminal if you run the Python script on your local machine.</p>
+
+    <pre><code>
+<span class="comment"># --- When you run 'python aigenerator.py' (or 'python3 aigenerator.py') ---</span>
+
+Welcome to the AI Art Generator!
+---------------------------------
+Created 'styles/' directory. Please place dummy style images there for testing.
+Created dummy 'starry_night.jpg' in 'styles/' for testing.
+Created 'user_photos/' directory. Place your content images here.
+Created dummy 'my_pic.jpg' in 'user_photos/' for testing.
+Created 'output/' directory for generated art.
+
+Enter the path to your content image (e.g., user_photos/my_pic.jpg): <span class="user-input">user_photos/my_pic.jpg</span>
+<span class="comment"># &lt;-- YOU WOULD TYPE HERE, for example: user_photos/my_pic.jpg</span>
+<span class="comment"># &lt;-- THEN PRESS ENTER</span>
+
+--- Choose Your Art Style ---
+Available Curated Styles:
+  1. Starry Night
+  2. The Scream
+  3. Watercolor Abstract
+  4. Cubist Portrait
+  Or type 'user_upload' to use your own style image.
+Enter your choice (e.g., 'Starry Night' or 'user_upload'): <span class="user-input">Starry Night</span>
+<span class="comment"># &lt;-- YOU WOULD TYPE HERE, for example: Starry Night</span>
+<span class="comment"># &lt;-- THEN PRESS ENTER</span>
+
+--- Validating Image Selection ---
+Image selection validated successfully!
+Content Image: /path/to/your/project/directory/user_photos/my_pic.jpg <span class="comment"># (This path would be absolute on your machine)</span>
+Style Image: /path/to/your/project/directory/styles/starry_night.jpg   <span class="comment"># (This path would be absolute on your machine)</span>
+
+--- Performing (Simulated) AI Style Transfer ---
+Applying style from 'starry_night.jpg' to 'my_pic.jpg'...
+Style transfer simulation complete!
+Stylized image saved to: /path/to/your/project/directory/output/my_pic_styled_with_starry_night_20250622_140716.png <span class="comment"># (Timestamp will vary)</span>
+
+---------------------------------
+AI Art Generation Complete!
+Your unique artwork is saved at: 
+/path/to/your/project/directory/output/my_pic_styled_with_starry_night_20250622_140716.png
+You can now open this file to view your art!
+To 'share' your art, simply upload this image file to your favorite social media platform.
+---------------------------------
+
+<span class="comment"># --- If you chose 'user_upload' for style_choice_input ---</span>
+<span class="comment"># ... (after content image path) ...</span>
+Enter your choice (e.g., 'Starry Night' or 'user_upload'): <span class="user-input">user_upload</span>
+<span class="comment"># &lt;-- YOU WOULD PRESS ENTER</span>
+Enter the path to your custom style image (e.g., styles/my_custom_style.jpg): <span class="user-input">styles/my_custom_style.jpg</span>
+<span class="comment"># &lt;-- YOU WOULD PRESS ENTER</span>
+<span class="comment"># ... (rest of the output would follow, adapted for your custom style image) ...</span>
+
+<span class="comment"># --- Example of an Error Scenario (e.g., if content image path is wrong) ---</span>
+Enter the path to your content image (e.g., user_photos/my_pic.jpg): <span class="user-input">non_existent_image.jpg</span>
+
+<span class="error">Error: Content image not found at: /path/to/your/project/directory/non_existent_image.jpg</span>
+<span class="error">Please check your input paths and try again.</span>
+    </code></pre>
+
+    <h2>Key takeaways from the preview:</h2>
+    <ul>
+        <li><strong>Interactive Prompts:</strong> The script will ask you questions one by one.</li>
+        <li><strong>Path Requirements:</strong> You need to provide valid paths to image files that actually exist in the specified folders (<code>user_photos/</code> for content, <code>styles/</code> for curated or your custom style).</li>
+        <li><strong>Output Location:</strong> A new image file will be created in the <code>output/</code> directory with a generated name that includes timestamps and the names of the content and style images.</li>
+        <li><strong>Simulated Style Transfer:</strong> Remember, the <code>apply_style_transfer_and_save</code> function currently performs a simple image blend. For actual AI style transfer, you'd integrate a machine learning model there.</li>
+    </ul>
+    <p>To experience this "run preview" live, please follow the steps I provided previously about running the script directly from your system's terminal.</p>
+
+</body>
+</html>
