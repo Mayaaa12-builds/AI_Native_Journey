@@ -1,0 +1,213 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Art Generator with Style Transfer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem; /* p-10 */
+        }
+        .btn-primary {
+            background-image: linear-gradient(to right, #6a0dad, #a720a7);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            transition: transform 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(167, 32, 167, 0.4);
+        }
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem; /* rounded-lg */
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+        input[type="file"] {
+            border: 2px dashed #cbd5e0;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="file"]:hover {
+            border-color: #a0aec0;
+        }
+        .image-preview-container {
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .image-preview {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 0.5rem;
+        }
+        .progress-indicator {
+            display: none; /* Hidden by default */
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #a720a7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="card w-full lg:flex lg:space-x-8">
+            <!-- Left Panel: Upload and Style Selection -->
+            <div class="lg:w-1/2 p-4">
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">AI Art Generator</h1>
+                <p class="text-center text-gray-600 mb-8">Transform your images into unique artistic masterpieces!</p>
+
+                {% if error %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline">{{ error }}</span>
+                    </div>
+                {% endif %}
+
+                <form id="uploadForm" action="/process" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <div>
+                        <label for="content_image" class="block text-gray-700 text-sm font-semibold mb-2">Upload Your Content Image:</label>
+                        <input type="file" id="content_image" name="content_image" accept="image/*" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-violet-50 file:text-violet-700
+                                hover:file:bg-violet-100 cursor-pointer" required>
+                    </div>
+
+                    <div>
+                        <label for="style_choice" class="block text-gray-700 text-sm font-semibold mb-2">Choose a Style:</label>
+                        <select id="style_choice" name="style_choice" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm">
+                            <option value="abstract_lines">Abstract Lines</option>
+                            <option value="watercolor">Watercolor</option>
+                            <option value="oil_painting">Oil Painting</option>
+                            <option value="sketch">Sketch</option>
+                            <option value="custom">Upload My Own Style Image</option>
+                        </select>
+                    </div>
+
+                    <div id="customStyleUpload" class="hidden">
+                        <label for="custom_style_image" class="block text-gray-700 text-sm font-semibold mb-2">Upload Your Own Style Image:</label>
+                        <input type="file" id="custom_style_image" name="custom_style_image" accept="image/*" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-pink-50 file:text-pink-700
+                                hover:file:bg-pink-100 cursor-pointer">
+                    </div>
+
+                    <div class="flex justify-center mt-8">
+                        <button type="submit" class="btn-primary flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21v-4a7 7 0 017-7V7a7 7 0 017 7v4m-7 0H7m0 0a7 7 0 017 7v0"></path></svg>
+                            <span>Generate Art</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Panel: Output & Download -->
+            <div class="lg:w-1/2 p-4 flex flex-col items-center justify-center space-y-6 mt-8 lg:mt-0">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Your AI Artwork</h2>
+                <div class="image-preview-container w-full h-80 flex items-center justify-center">
+                    {% if generated_image %}
+                        <img src="{{ url_for('generated_file', filename=generated_image) }}" alt="Generated AI Art" class="image-preview">
+                    {% else %}
+                        <p class="text-gray-500">Your generated art will appear here.</p>
+                    {% endif %}
+                    <div id="loadingIndicator" class="progress-indicator"></div>
+                </div>
+
+                {% if generated_image %}
+                    <a href="{{ url_for('download_file', filename=generated_image) }}" class="btn-secondary flex items-center space-x-2 mt-4" download>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Download Artwork</span>
+                    </a>
+                    <!-- Share options (optional enhancement) -->
+                    <div class="flex space-x-4 mt-2">
+                        <p class="text-gray-600">Share on:</p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800" onclick="alert('Sharing to Facebook is an optional enhancement not implemented in this demo.')">Facebook</a>
+                        <a href="#" class="text-blue-400 hover:text-blue-600" onclick="alert('Sharing to Twitter is an optional enhancement not implemented in this demo.')">Twitter</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('style_choice').addEventListener('change', function() {
+            var customStyleUpload = document.getElementById('customStyleUpload');
+            if (this.value === 'custom') {
+                customStyleUpload.classList.remove('hidden');
+                document.getElementById('custom_style_image').setAttribute('required', 'required');
+            } else {
+                customStyleUpload.classList.add('hidden');
+                document.getElementById('custom_style_image').removeAttribute('required');
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            // Optional: Hide the image preview or replace it with a message
+            var imagePreview = document.querySelector('.image-preview');
+            if (imagePreview) {
+                imagePreview.style.display = 'none';
+            }
+            var textPlaceholder = document.querySelector('.image-preview-container p');
+            if (textPlaceholder) {
+                textPlaceholder.style.display = 'none';
+            }
+        });
+
+        // Ensure the correct initial state for custom style upload on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            var styleChoice = document.getElementById('style_choice');
+            var customStyleUpload = document.getElementById('customStyleUpload');
+            var customStyleImageInput = document.getElementById('custom_style_image');
+
+            if (styleChoice.value === 'custom') {
+                customStyleUpload.classList.remove('hidden');
+                customStyleImageInput.setAttribute('required', 'required');
+            } else {
+                customStyleUpload.classList.add('hidden');
+                customStyleImageInput.removeAttribute('required');
+            }
+        });
+    </script>
+</body>
+</html>
