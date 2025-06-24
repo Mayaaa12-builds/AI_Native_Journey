@@ -1,6 +1,7 @@
 # Import necessary Flask modules and other libraries
 import os
 import uuid
+import datetime # Import datetime for timestamps
 from flask import Flask, request, render_template, send_from_directory, redirect, url_for
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps # Import ImageOps
 import numpy as np
@@ -22,6 +23,11 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit uploads to 16MB
 
 # Allowed image extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# --- Global list to hold metadata of generated artworks ---
+# IMPORTANT: Data stored here is IN-MEMORY and will be lost when the server restarts.
+# For persistent storage, a database (e.g., Firestore) is required.
+generated_artworks_metadata = []
 
 def allowed_file(filename):
     """
@@ -46,7 +52,8 @@ def apply_style_transfer_simulation(content_image_path, style_choice, custom_sty
                                                  Defaults to None.
 
     Returns:
-        str: Path to the generated stylized image.
+        tuple: (str, str) - Path to the generated stylized image and its filename,
+              or (None, None) if an error occurs.
     """
     try:
         content_img = Image.open(content_image_path).convert("RGB")
@@ -122,11 +129,11 @@ def apply_style_transfer_simulation(content_image_path, style_choice, custom_sty
             stylized_img = content_img
 
         stylized_img.save(output_path)
-        return output_path
+        return output_path, output_filename # Return both path and filename for metadata
 
     except Exception as e:
         print(f"Error during style transfer simulation: {e}")
-        return None
+        return None, None
 
 @app.route('/')
 def index():
@@ -159,14 +166,36 @@ def process_image():
         style_choice = 'custom' # Force style to 'custom' if a custom image is provided
 
     # Simulate style transfer
-    generated_image_path = apply_style_transfer_simulation(
+    generated_image_path, generated_image_filename = apply_style_transfer_simulation(
         content_filepath,
         style_choice,
         custom_style_filepath
     )
 
     if generated_image_path:
-        generated_image_filename = os.path.basename(generated_image_path)
+        # --- Store artwork metadata in the global list ---
+        artwork_id = str(uuid.uuid4()) # Unique ID for this specific artwork generation
+        # For user_id, since there's no authentication, we'll use a placeholder or assign one randomly
+        # In a real app, this would come from the authenticated user session.
+        user_id = "anonymous_user_" + str(uuid.uuid4())[:8] # Simple placeholder user ID
+
+        artwork_metadata = {
+            "artwork_id": artwork_id,
+            "generated_image_path": generated_image_path,
+            "generated_image_filename": generated_image_filename,
+            "original_image_path": content_filepath,
+            "original_image_filename": content_filename,
+            "style_applied": style_choice,
+            "timestamp": datetime.datetime.now().isoformat(),
+            "user_id": user_id,
+            "title": f"Art - {style_choice.replace('_', ' ').title()}", # Simple title based on style
+            "is_public": False # Default to private, can be changed with UI
+        }
+        generated_artworks_metadata.append(artwork_metadata)
+        print(f"Stored artwork metadata: {artwork_metadata}")
+        print(f"Total artworks in memory: {len(generated_artworks_metadata)}")
+        # --- End of storing metadata ---
+
         return render_template('index.html', generated_image=generated_image_filename)
     else:
         return render_template('index.html', error="Failed to process image. Please try again.")
@@ -192,8 +221,26 @@ def generated_file(filename):
     """
     return send_from_directory(app.config['GENERATED_FOLDER'], filename)
 
+# Optional: A route to view the in-memory metadata (for testing/debugging)
+@app.route('/view_metadata')
+def view_metadata():
+    """
+    Displays the current in-memory artwork metadata.
+    NOTE: This is for demonstration only and not for production.
+    """
+    metadata_display = ""
+    if generated_artworks_metadata:
+        for i, artwork in enumerate(generated_artworks_metadata):
+            metadata_display += f"--- Artwork {i+1} ---\n"
+            for key, value in artwork.items():
+                metadata_display += f"{key}: {value}\n"
+            metadata_display += "\n"
+    else:
+        metadata_display = "No artworks generated yet."
+
+    return render_template('metadata_viewer.html', metadata=metadata_display)
+
 if __name__ == '__main__':
     # Run the Flask app in debug mode.
     # In a production environment, use a production-ready WSGI server like Gunicorn or uWSGI.
     app.run(debug=True)
-
