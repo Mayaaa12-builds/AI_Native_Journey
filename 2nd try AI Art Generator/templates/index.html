@@ -30,7 +30,7 @@
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 44px 10px rgba(167, 32, 167, 0.4);
+            box-shadow: 0 4px 10px rgba(167, 32, 167, 0.4);
         }
         .btn-secondary {
             background-color: #e2e8f0;
@@ -101,6 +101,7 @@
                 {% endif %}
 
                 <form id="uploadForm" action="/process" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <!-- Original Content Image Upload -->
                     <div>
                         <label for="content_image" class="block text-gray-700 text-sm font-semibold mb-2">Upload Your Content Image:</label>
                         <input type="file" id="content_image" name="content_image" accept="image/*" class="block w-full text-sm text-gray-500
@@ -108,12 +109,13 @@
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
                                 file:bg-violet-50 file:text-violet-700
-                                hover:file:bg-violet-100 cursor-pointer" required>
+                                hover:file:bg-violet-100 cursor-pointer">
                     </div>
 
+                    <!-- Primary Style Selection -->
                     <div>
-                        <label for="style_choice" class="block text-gray-700 text-sm font-semibold mb-2">Choose a Style:</label>
-                        <select id="style_choice" name="style_choice" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm">
+                        <label for="style_choice_1" class="block text-gray-700 text-sm font-semibold mb-2">Choose Primary Style:</label>
+                        <select id="style_choice_1" name="style_choice_1" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm">
                             <option value="abstract_lines">Abstract Lines</option>
                             <option value="watercolor">Watercolor</option>
                             <option value="oil_painting">Oil Painting</option>
@@ -125,6 +127,28 @@
                         </select>
                     </div>
 
+                    <!-- Secondary Style Selection for Blending -->
+                    <div id="secondaryStyleContainer">
+                        <label for="style_choice_2" class="block text-gray-700 text-sm font-semibold mb-2">Blend with Secondary Style (Optional):</label>
+                        <select id="style_choice_2" name="style_choice_2" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md shadow-sm">
+                            <option value="none">None</option>
+                            <option value="abstract_lines">Abstract Lines</option>
+                            <option value="watercolor">Watercolor</option>
+                            <option value="oil_painting">Oil Painting</option>
+                            <option value="sketch">Sketch</option>
+                            <option value="picasso_cubist">Pablo Picasso (Cubist)</option>
+                            <option value="dali_surreal">Salvador Dalí (Surrealism)</option>
+                            <option value="gaudi_gothic">Antoni Gaudí (Gothic Style)</option>
+                        </select>
+                    </div>
+
+                    <!-- Blend Ratio Slider -->
+                    <div id="blendRatioContainer" class="hidden">
+                        <label for="blend_ratio" class="block text-gray-700 text-sm font-semibold mb-2">Blend Ratio (Primary Style 0% - 100% Secondary Style): <span id="blendRatioValue">50%</span></label>
+                        <input type="range" id="blend_ratio" name="blend_ratio" min="0" max="100" value="50" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <!-- Custom Style Upload (appears if 'custom' is selected as primary style) -->
                     <div id="customStyleUpload" class="hidden">
                         <label for="custom_style_image" class="block text-gray-700 text-sm font-semibold mb-2">Upload Your Own Style Image:</label>
                         <input type="file" id="custom_style_image" name="custom_style_image" accept="image/*" class="block w-full text-sm text-gray-500
@@ -135,10 +159,19 @@
                                 hover:file:bg-pink-100 cursor-pointer">
                     </div>
 
-                    <div class="flex justify-center mt-8">
-                        <button type="submit" class="btn-primary flex items-center justify-center space-x-2">
+                    <!-- Hidden fields for refinement -->
+                    <input type="hidden" id="lastGeneratedFilename" name="last_generated_filename" value="{{ last_processed_image if last_processed_image }}">
+                    <input type="hidden" id="refineFlag" name="refine_flag" value="false">
+
+
+                    <div class="flex justify-center space-x-4 mt-8">
+                        <button type="submit" id="generateBtn" class="btn-primary flex items-center justify-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21v-4a7 7 0 017-7V7a7 7 0 017 7v4m-7 0H7m0 0a7 7 0 017 7v0"></path></svg>
                             <span>Generate Art</span>
+                        </button>
+                        <button type="button" id="refineBtn" class="btn-secondary flex items-center justify-center space-x-2 {% if not generated_image %}opacity-50 cursor-not-allowed{% endif %}" {% if not generated_image %}disabled{% endif %}>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356-2A8.001 8.001 0 004 15v1m7-11v5h.582m15.356-2A8.001 8.001 0 004 15v1"></path></svg>
+                            <span>Refine Last Artwork</span>
                         </button>
                     </div>
                 </form>
@@ -149,9 +182,9 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-4">Your AI Artwork</h2>
                 <div class="image-preview-container w-full h-80 flex items-center justify-center">
                     {% if generated_image %}
-                        <img src="{{ url_for('generated_file', filename=generated_image) }}" alt="Generated AI Art" class="image-preview">
+                        <img src="{{ url_for('generated_file', filename=generated_image) }}" alt="Generated AI Art" class="image-preview" id="displayedArtwork">
                     {% else %}
-                        <p class="text-gray-500">Your generated art will appear here.</p>
+                        <p class="text-gray-500" id="artworkPlaceholder">Your generated art will appear here.</p>
                     {% endif %}
                     <div id="loadingIndicator" class="progress-indicator"></div>
                 </div>
@@ -173,42 +206,126 @@
     </div>
 
     <script>
-        document.getElementById('style_choice').addEventListener('change', function() {
-            var customStyleUpload = document.getElementById('customStyleUpload');
-            if (this.value === 'custom') {
-                customStyleUpload.classList.remove('hidden');
-                document.getElementById('custom_style_image').setAttribute('required', 'required');
-            } else {
-                customStyleUpload.classList.add('hidden');
-                document.getElementById('custom_style_image').removeAttribute('required');
-            }
-        });
+        const styleChoice1 = document.getElementById('style_choice_1');
+        const styleChoice2 = document.getElementById('style_choice_2');
+        const customStyleUpload = document.getElementById('customStyleUpload');
+        const customStyleImageInput = document.getElementById('custom_style_image');
+        const blendRatioContainer = document.getElementById('blendRatioContainer');
+        const blendRatioSlider = document.getElementById('blend_ratio');
+        const blendRatioValueSpan = document.getElementById('blendRatioValue');
+        const contentImageInput = document.getElementById('content_image');
+        const refineBtn = document.getElementById('refineBtn');
+        const refineFlagInput = document.getElementById('refineFlag');
+        const lastGeneratedFilenameInput = document.getElementById('lastGeneratedFilename');
+        const generateBtn = document.getElementById('generateBtn');
+        const artworkPlaceholder = document.getElementById('artworkPlaceholder');
+        const displayedArtwork = document.getElementById('displayedArtwork');
+        const loadingIndicator = document.getElementById('loadingIndicator');
 
-        document.getElementById('uploadForm').addEventListener('submit', function() {
-            document.getElementById('loadingIndicator').style.display = 'block';
-            // Optional: Hide the image preview or replace it with a message
-            var imagePreview = document.querySelector('.image-preview');
-            if (imagePreview) {
-                imagePreview.style.display = 'none';
-            }
-            var textPlaceholder = document.querySelector('.image-preview-container p');
-            if (textPlaceholder) {
-                textPlaceholder.style.display = 'none';
-            }
-        });
+        // Function to update UI based on selected styles
+        function updateStyleUI() {
+            const isCustomSelected = styleChoice1.value === 'custom';
+            const isBlendingSelected = styleChoice2.value !== 'none';
 
-        // Ensure the correct initial state for custom style upload on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            var styleChoice = document.getElementById('style_choice');
-            var customStyleUpload = document.getElementById('customStyleUpload');
-            var customStyleImageInput = document.getElementById('custom_style_image');
-
-            if (styleChoice.value === 'custom') {
+            // Show/hide custom style upload
+            if (isCustomSelected) {
                 customStyleUpload.classList.remove('hidden');
                 customStyleImageInput.setAttribute('required', 'required');
+                // When custom is selected, blending is not applicable
+                styleChoice2.value = 'none';
+                styleChoice2.disabled = true; // Disable secondary style dropdown
+                blendRatioContainer.classList.add('hidden');
             } else {
                 customStyleUpload.classList.add('hidden');
                 customStyleImageInput.removeAttribute('required');
+                styleChoice2.disabled = false; // Enable secondary style dropdown
+            }
+
+            // Show/hide blend ratio slider
+            if (!isCustomSelected && isBlendingSelected) {
+                blendRatioContainer.classList.remove('hidden');
+            } else {
+                blendRatioContainer.classList.add('hidden');
+            }
+        }
+
+        // Event Listeners
+        styleChoice1.addEventListener('change', updateStyleUI);
+        styleChoice2.addEventListener('change', updateStyleUI);
+        blendRatioSlider.addEventListener('input', () => {
+            blendRatioValueSpan.textContent = `${blendRatioSlider.value}%`;
+        });
+
+        // Refine button logic
+        refineBtn.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            if (this.disabled) return; // Do nothing if button is disabled
+
+            refineFlagInput.value = 'true'; // Set refine flag
+            // Ensure content_image is not required for refinement
+            contentImageInput.removeAttribute('required');
+
+            // Visually indicate processing
+            if (artworkPlaceholder) artworkPlaceholder.style.display = 'none';
+            if (displayedArtwork) displayedArtwork.style.display = 'none';
+            loadingIndicator.style.display = 'block';
+
+            document.getElementById('uploadForm').submit();
+        });
+
+        // Generate button logic (original submission)
+        generateBtn.addEventListener('click', function(event) {
+            // Ensure content_image is required if we are not refining
+            // and no file has been selected via the file input.
+            // If a file is chosen, its 'files' property will be non-empty.
+            if (!lastGeneratedFilenameInput.value && contentImageInput.files.length === 0) {
+                 contentImageInput.setAttribute('required', 'required');
+            } else {
+                 contentImageInput.removeAttribute('required'); // Remove if refining or a file is present
+            }
+            refineFlagInput.value = 'false'; // Ensure refine flag is false for new generation
+
+            // Proceed with form submission through default behavior
+            // The form's onsubmit listener will handle loading indicator.
+        });
+
+
+        // Form submission loading indicator
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            if (artworkPlaceholder) artworkPlaceholder.style.display = 'none';
+            if (displayedArtwork) displayedArtwork.style.display = 'none';
+            loadingIndicator.style.display = 'block';
+        });
+
+        // Initial UI setup on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStyleUI(); // Set initial state of style-related fields
+
+            // Set blend ratio value
+            blendRatioValueSpan.textContent = `${blendRatioSlider.value}%`;
+
+            // Disable refine button if no image has been generated yet
+            if (!lastGeneratedFilenameInput.value) {
+                refineBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                refineBtn.disabled = true;
+            } else {
+                refineBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                refineBtn.disabled = false;
+            }
+
+            // If the page reloaded after a generation, hide placeholder and show image
+            if (lastGeneratedFilenameInput.value && displayedArtwork) {
+                if (artworkPlaceholder) artworkPlaceholder.style.display = 'none';
+                displayedArtwork.style.display = 'block';
+            }
+            loadingIndicator.style.display = 'none'; // Hide on page load
+
+            // Ensure content_image is required on initial load if no last_processed_image AND no file already selected
+            if (!lastGeneratedFilenameInput.value && contentImageInput.files.length === 0) {
+                contentImageInput.setAttribute('required', 'required');
+            } else {
+                contentImageInput.removeAttribute('required');
             }
         });
     </script>
