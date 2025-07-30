@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Story Edit Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font for better aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrolling on the main body */
+        }
+
+        /* Custom styles for Instagram-like appearance */
+        .story-container {
+            width: 100%;
+            max-width: 400px; /* Typical phone width */
+            height: 100vh; /* Full viewport height */
+            max-height: 800px; /* Limit height for larger screens */
+            position: relative;
+            background-color: #000; /* Black background for story */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 1rem; /* Rounded corners for the "phone" screen */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .story-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .story-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            z-index: 10;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 3px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 1.5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 100%; /* Simulates full progress for a single story frame */
+            height: 100%;
+            background-color: white;
+            border-radius: 1.5px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-right: 0.5rem;
+        }
+
+        .story-footer {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; /* Align to the right for "More" button */
+            align-items: center;
+            padding: 0.5rem 0;
+            z-index: 10;
+        }
+
+        .more-options-menu {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            z-index: 20;
+            min-width: 150px;
+            transform: translateY(100%); /* Start off-screen */
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+            pointer-events: none; /* Disable interaction when hidden */
+        }
+
+        .more-options-menu.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto; /* Enable interaction when active */
+        }
+
+        .menu-item {
+            padding: 0.75rem 1rem;
+            color: white;
+            font-size: 0.9rem;
+            text-align: left;
+            width: 100%;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.danger {
+            color: #ef4444; /* Red for delete */
+        }
+
+        /* Editing Mode Styles */
+        .edit-mode-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
+            z-index: 15; /* Above story content, below editing tools */
+            display: none; /* Hidden by default */
+        }
+
+        .edit-mode-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            box-sizing: border-box;
+            z-index: 16;
+        }
+
+        .edit-mode-controls.active {
+            display: flex;
+        }
+
+        .editable-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 2px dashed transparent; /* For visual indication when editable */
+            transition: border-color 0.2s ease;
+        }
+        .editable-text:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .editable-text.selected {
+            border-color: #3b82f6; /* Blue border when selected/editing */
+        }
+
+        .editable-sticker {
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            background-image: url('https://placehold.co/80x80/065f46/ffffff?text=%F0%9F%8C%B1'); /* Placeholder sticker (plant emoji) */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: grab;
+            border: 2px dashed transparent;
+            transition: border-color 0.2s ease;
+        }
+        .editable-sticker:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .editable-sticker.selected {
+            border-color: #3b82f6; /* Blue border when selected/editing */
+        }
+
+        .edit-toolbar {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            display: flex;
+            gap: 0.75rem;
+            margin-top: auto; /* Push to bottom */
+            z-index: 17;
+        }
+
+        .edit-toolbar-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+        .edit-toolbar-button:hover {
+            background-color: #2563eb;
+        }
+
+        .edit-toolbar-button.delete {
+            background-color: #ef4444;
+        }
+        .edit-toolbar-button.delete:hover {
+            background-color: #dc2626;
+        }
+
+        /* Message Box for Alerts */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none; /* Hidden by default */
+        }
+
+        .message-box {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+        }
+
+        .message-box h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .message-box p {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        .message-box button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .message-box button:hover {
+            background-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-200 flex items-center justify-center min-h-screen">
+
+    <div class="story-container">
+        <!-- Story Content (Image/Video Placeholder) -->
+        <div id="storyContent" class="story-content" style="background-image: url('https://placehold.co/400x800/60a5fa/ffffff?text=Your+Story+Content');">
+            <!-- Header -->
+            <div class="story-header">
+                <div class="profile-info">
+                    <img src="https://placehold.co/32x32/8b5cf6/ffffff?text=P" alt="Profile Pic" class="profile-pic">
+                    <span class="text-white font-semibold text-sm">Your Story</span>
+                    <span class="text-gray-300 text-xs ml-2">1h</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+
+            <!-- Editable Elements -->
+            <div id="storyText" class="editable-text">Hello, Instagram!</div>
+            <div id="storySticker" class="editable-sticker"></div>
+
+            <!-- Footer -->
+            <div class="story-footer">
+                <button id="moreOptionsBtn" class="p-2 rounded-full bg-transparent text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- More Options Menu -->
+        <div id="moreOptionsMenu" class="more-options-menu">
+            <div id="editStoryMenuItem" class="menu-item">Edit Story</div>
+            <div class="menu-item">Save</div>
+            <div class="menu-item danger">Delete</div>
+        </div>
+
+        <!-- Edit Mode Overlay and Controls -->
+        <div id="editModeOverlay" class="edit-mode-overlay"></div>
+        <div id="editModeControls" class="edit-mode-controls">
+            <!-- Toolbar for editing -->
+            <div class="edit-toolbar">
+                <button id="editTextBtn" class="edit-toolbar-button">Edit Text</button>
+                <button id="deleteStickerBtn" class="edit-toolbar-button delete">Delete Sticker</button>
+                <button id="doneEditingBtn" class="edit-toolbar-button">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Box HTML -->
+    <div id="messageBoxOverlay" class="message-box-overlay">
+        <div class="message-box">
+            <h3 id="messageBoxTitle"></h3>
+            <p id="messageBoxContent"></p>
+            <button id="messageBoxCloseBtn">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+        const moreOptionsMenu = document.getElementById('moreOptionsMenu');
+        const editStoryMenuItem = document.getElementById('editStoryMenuItem');
+        const editModeOverlay = document.getElementById('editModeOverlay');
+        const editModeControls = document.getElementById('editModeControls');
+        const storyText = document.getElementById('storyText');
+        const storySticker = document.getElementById('storySticker');
+        const doneEditingBtn = document.getElementById('doneEditingBtn');
+        const editTextBtn = document.getElementById('editTextBtn');
+        const deleteStickerBtn = document.getElementById('deleteStickerBtn');
+
+        // Message Box elements
+        const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+        const messageBoxTitle = document.getElementById('messageBoxTitle');
+        const messageBoxContent = document.getElementById('messageBoxContent');
+        const messageBoxCloseBtn = document.getElementById('messageBoxCloseBtn');
+
+        // Function to show custom message box
+        function showMessageBox(title, message) {
+            messageBoxTitle.textContent = title;
+            messageBoxContent.textContent = message;
+            messageBoxOverlay.style.display = 'flex';
+        }
+
+        // Function to hide custom message box
+        function hideMessageBox() {
+            messageBoxOverlay.style.display = 'none';
+        }
+
+        messageBoxCloseBtn.addEventListener('click', hideMessageBox);
+
+
+        // State variables for editing
+        let isEditing = false;
+        let selectedElement = null;
+
+        // Toggle More Options Menu
+        moreOptionsBtn.addEventListener('click', () => {
+            moreOptionsMenu.classList.toggle('active');
+        });
+
+        // Enter Edit Mode
+        editStoryMenuItem.addEventListener('click', () => {
+            moreOptionsMenu.classList.remove('active'); // Hide menu
+            isEditing = true;
+            editModeOverlay.style.display = 'block';
+            editModeControls.classList.add('active');
+
+            // Make elements visually editable
+            storyText.classList.add('selected');
+            storySticker.classList.add('selected');
+
+            showMessageBox('Edit Mode', 'You are now in edit mode. Click "Edit Text" or "Delete Sticker" from the toolbar. Click "Done" to save changes.');
+        });
+
+        // Exit Edit Mode
+        doneEditingBtn.addEventListener('click', () => {
+            isEditing = false;
+            editModeOverlay.style.display = 'none';
+            editModeControls.classList.remove('active');
+
+            // Remove visual editable indicators
+            storyText.classList.remove('selected');
+            storySticker.classList.remove('selected');
+
+            // Deselect any active element
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+                selectedElement = null;
+            }
+
+            showMessageBox('Changes Saved', 'Your story has been updated!');
+        });
+
+        // Simulate Text Editing
+        editTextBtn.addEventListener('click', () => {
+            if (isEditing) {
+                const currentText = storyText.textContent;
+                const newText = prompt('Edit your story text:', currentText); // Using prompt for simplicity in mockup
+                if (newText !== null) { // If user didn't cancel
+                    storyText.textContent = newText;
+                    showMessageBox('Text Updated', 'Story text has been changed.');
+                }
+            } else {
+                showMessageBox('Not in Edit Mode', 'Please enter edit mode first.');
+            }
+        });
+
+        // Simulate Sticker Deletion
+        deleteStickerBtn.addEventListener('click', () => {
+            if (isEditing) {
+                if (storySticker.style.display !== 'none') {
+                    const confirmDelete = confirm('Are you sure you want to delete the sticker?'); // Using confirm for simplicity
+                    if (confirmDelete) {
+                        storySticker.style.display = 'none'; // Hide the sticker
+                        showMessageBox('Sticker Deleted', 'The sticker has been removed from your story.');
+                    }
+                } else {
+                    showMessageBox('No Sticker', 'Sticker is already deleted or not present.');
+                }
+            } else {
+                showMessageBox('Not in Edit Mode', 'Please enter edit mode first.');
+            }
+        });
+
+        // Basic drag for sticker (simplified)
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        storySticker.addEventListener('mousedown', (e) => {
+            if (isEditing) {
+                isDragging = true;
+                selectedElement = storySticker;
+                storySticker.classList.add('selected');
+                offsetX = e.clientX - storySticker.getBoundingClientRect().left;
+                offsetY = e.clientY - storySticker.getBoundingClientRect().top;
+                storySticker.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            if (selectedElement === storySticker) {
+                storySticker.style.left = (e.clientX - offsetX) + 'px';
+                storySticker.style.top = (e.clientY - offsetY) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                storySticker.style.cursor = 'grab';
+            }
+        });
+
+        // Prevent default drag behavior for images
+        storySticker.ondragstart = () => false;
+
+        // Initial message for user
+        window.onload = () => {
+            showMessageBox('Instagram Story Mockup', 'This is a mockup of an Instagram Story. Click the three dots (...) at the bottom right to see the new "Edit Story" option.');
+        };
+
+    </script>
+</body>
+</html>
